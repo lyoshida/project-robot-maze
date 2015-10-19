@@ -16,19 +16,28 @@ class ControlCenter {
         // Step 1
         // TODO: Call the method, isWall(), and define a constant to be equal to its return value.
         
+        let isWall = self.isWall(robot, direction: robot.direction)
+        
         // Step 2
         // TODO: Save the return value of checkWalls() to a constant called, wallInfo.
         
+        let wallInfo = checkWalls(robot)
+        
         //Step 3
-        //let isThreeWayJunction = (wallInfo.numberOfWalls == 1)
+        let isThreeWayJunction = (wallInfo.numberOfWalls == 1)
         // TODO: Define the constant, isTwoWayPath
+        let isTwoWayPath = (wallInfo.numberOfWalls == 2)
         // TODO: Define the constant, isDeadEnd
+        let isDeadend = (wallInfo.numberOfWalls == 3)
         
         // If statement that enables the robot to choose a move
-//        if isThreeWayJunction && isWall {
-//            randomlyRotateRightOrLeft(robot)
-//        }
-        
+        if isThreeWayJunction && isWall {
+            randomlyRotateRightOrLeft(robot)
+        }
+            
+        else if isThreeWayJunction && !isWall {
+            continueStraightOrRotate(robot, wallInfo: wallInfo)
+        }
         // Step 4c
         // Two-way Path - else-if statements
         // TODO: If the robot encounters a two way path and there is NO wall ahead it should continue forward.
@@ -44,10 +53,26 @@ class ControlCenter {
 //        else if !isThreeWayJunction && !isWall {
 //            robot.move()
 //        }
-//            
+//
 //        else if !isThreeWayJunction && isWall {
 //            randomlyRotateRightOrLeft(robot)
 //        }
+        
+        else if isTwoWayPath && !isWall {
+            robot.move()
+        }
+        
+        else if isTwoWayPath && isWall {
+            turnTowardClearPath(robot, wallInfo: wallInfo)
+        }
+        
+        else if isDeadend && isWall {
+            robot.rotateRight()
+        }
+        
+        else if isDeadend && !isWall {
+            robot.move()
+        }
     }
     
     func isWall(robot: ComplexRobotObject, direction: MazeDirection) -> Bool {
@@ -58,11 +83,32 @@ class ControlCenter {
         // Step 1
         // TODO: Write a switch statement handling all possible values of direction
         
+        switch direction {
+            
+        case .Up:
+            if cell.top {
+                isWall = true
+            }
+        case .Right:
+            if cell.right {
+                isWall = true
+            }
+        case .Down:
+            if cell.bottom {
+                isWall = true
+            }
+        case .Left :
+            if cell.left {
+                isWall = true
+            }
+            
+        }
+        
         //Step 1
         // TODO: Return a Bool that represents whether the robot is currently facing a wall
         
         // Placeholder
-        return false
+        return isWall
     }
 
     func checkWalls(robot:ComplexRobotObject) -> (up: Bool, right: Bool, down: Bool, left: Bool, numberOfWalls: Int) {
@@ -83,13 +129,21 @@ class ControlCenter {
         
         // Step 2
         // TODO: Check if there is a wall at the bottom of the current cell
+        let isWallBottom = cell.bottom
+        if isWallBottom {
+            numberOfWalls++
+        }
 
         // TODO: Check if there is a wall to the left of the current cell
-
+        let isWallLeft = cell.left
+        if isWallLeft {
+            numberOfWalls++
+        }
+        
         // TODO: Return a tuple representing the bools for top, right, down & left, and the number of walls
         
         // This tuple is a placeholder
-        return (false, false, false, false, 0)
+        return (isWallUp, isWallRight, isWallBottom, isWallLeft, numberOfWalls)
 
     }
     
@@ -99,6 +153,12 @@ class ControlCenter {
         // Step 4a
         //TODO: Write an if statement that randomly calls either robot.rotateRight() or robot.rotateLeft()
         
+        if randomNumber == 0 {
+            robot.rotateLeft()
+        } else {
+            robot.rotateRight()
+        }
+        
     }
     
     func continueStraightOrRotate(robot: ComplexRobotObject, wallInfo: (up: Bool, right: Bool, down: Bool, left: Bool, numberOfWalls: Int) ) {
@@ -106,16 +166,43 @@ class ControlCenter {
         
         // Step 4b
         //TODO: Write an if statement that randomly calls either robot.move() or turnTowardClearPath(robot, wallInfo: wallInfo)
+        if randomNumber == 0 {
+            robot.move()
+        } else {
+            turnTowardClearPath(robot, wallInfo: wallInfo)
+        }
     }
     
     func turnTowardClearPath(robot: ComplexRobotObject, wallInfo: (up: Bool, right: Bool, down: Bool, left: Bool, numberOfWalls: Int)) {
         
         //Step 4b
         //TODO: Tell the robot which way to turn toward the clear path
-//        if robot.direction == .Left && wallInfo.down {
-//            robot.rotateRight()
-//        } else if robot.direction == .Up && wallInfo.left {
-//            robot.rotateRight()
+        if robot.direction == .Left && wallInfo.down {
+            robot.rotateRight()
+        } else if robot.direction == .Up && wallInfo.left {
+            robot.rotateRight()
+        } else if robot.direction == .Right && wallInfo.up {
+            robot.rotateRight()
+        } else if robot.direction == .Down && wallInfo.right {
+            robot.rotateRight()
+        } else if robot.direction == .Left && wallInfo.up {
+            robot.rotateLeft()
+        } else if robot.direction == .Up && wallInfo.right {
+            robot.rotateLeft()
+        } else if robot.direction == .Right && wallInfo.down {
+            robot.rotateLeft()
+        } else if robot.direction == .Down && wallInfo.left {
+            robot.rotateLeft()
+        } else {
+            randomlyRotateRightOrLeft(robot)
+        }
+        
+//        else if robot.direction == .Up && wallInfo.up {
+//            randomlyRotateRightOrLeft(robot)
+//        } else if robot.direction == .Down && wallInfo.down {
+//            randomlyRotateRightOrLeft(robot)
+//        } else {
+//            randomlyRotateRightOrLeft(robot)
 //        }
     }
     
